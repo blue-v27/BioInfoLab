@@ -1,9 +1,8 @@
 #include <iostream>
 #include <unordered_map>
 
-int main()
+std::string toAmino(std::string input)
 {
-    
     std::unordered_map<std::string, std::string> table;
     
     table["UUU"] = "Phe";
@@ -86,9 +85,6 @@ int main()
     table["GGA"] = "Gly";
     table["GGG"] = "Gly";
     
-    std::string input;
-    std::cin>>input;
-    
     std::string output;
     
     for (int i = 0; i < input.length() - 2; i+=3)
@@ -100,6 +96,59 @@ int main()
         output  += table[pair];
     }
     
-    std::cout<<output;
+    return output;
+}
+
+
+std::string toSingleLetter(std::string input)
+{
+    std::unordered_map<std::string, std::string> table = 
+    {
+        {"Phe", "F"},
+        {"Leu", "L"},
+        {"Ser", "S"},
+        {"Tyr", "Y"},
+        {"Stop", "*"},
+        {"Cys", "C"},
+        {"Trp", "W"},
+        {"Pro", "P"},
+        {"His", "H"},
+        {"Gln", "Q"},
+        {"Arg", "R"},
+        {"Ile", "I"},
+        {"Met", "M"},
+        {"Thr", "T"},
+        {"Asn", "N"},
+        {"Lys", "K"},
+        {"Val", "V"},
+        {"Ala", "A"},
+        {"Asp", "D"},
+        {"Glu", "E"},
+        {"Gly", "G"}
+    };
+
+    std::string output;
+    
+    for (int i = 0; i < input.length() - 2; i+=3)
+    {
+        std::string pair;
+        pair    += input[i];
+        pair    += input[i+1];
+        pair    += input[i+2];
+        output  += table[pair];
+    }
+    
+    return output;
+}
+
+
+int main()
+{
+    
+    std::string input;
+    std::cin>>input;
+
+    
+    std::cout<<toAmino(input)<<'\n'<<toSingleLetter(toAmino(input));
     return 0;
 }
