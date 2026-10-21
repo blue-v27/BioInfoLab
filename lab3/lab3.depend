@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1792161375 source:c:\users\blue\documents\leetcode\lab3\main.cpp
+	<iostream>
+	<fstream>
+	<unordered_map>
+
