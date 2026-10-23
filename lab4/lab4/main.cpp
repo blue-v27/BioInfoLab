@@ -1,0 +1,133 @@
+#include <iostream>
+#include <fstream>
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+
+std::vector<std::string> sampleGenome(const std::string& input, int numSamples = 20000)
+{
+    std::vector<std::string> samples;
+    samples.reserve(numSamples);
+
+    std::srand(std::time(0));
+
+    for (int s = 0; s < numSamples; ++s)
+    {
+        int sampleLen = 100 + (std::rand() % 51);
+
+        if (input.length() < sampleLen) continue;
+
+        int maxStart = input.length() - sampleLen;
+        int startPos = std::rand() % (maxStart + 1);
+
+        samples.push_back(input.substr(startPos, sampleLen));
+    }
+
+    return samples;
+}
+
+std::unordered_map<std::string, int> toAminoFreq(const std::vector<std::string>& samples)
+{
+    std::unordered_map<std::string, std::string> table;
+    std::unordered_map<std::string, int> freq;
+
+    table["UUU"] = "Phe"; table["UUC"] = "Phe"; table["UUA"] = "Leu"; table["UUG"] = "Leu";
+    table["UCU"] = "Ser"; table["UCC"] = "Ser"; table["UCA"] = "Ser"; table["UCG"] = "Ser";
+    table["UAU"] = "Tyr"; table["UAC"] = "Tyr"; table["UAA"] = "Stop"; table["UAG"] = "Stop";
+    table["UGU"] = "Cys"; table["UGC"] = "Cys"; table["UGA"] = "Stop"; table["UGG"] = "Trp";
+
+    table["CUU"] = "Leu"; table["CUC"] = "Leu"; table["CUA"] = "Leu"; table["CUG"] = "Leu";
+    table["CCU"] = "Pro"; table["CCC"] = "Pro"; table["CCA"] = "Pro"; table["CCG"] = "Pro";
+    table["CAU"] = "His"; table["CAC"] = "His"; table["CAA"] = "Gln"; table["CAG"] = "Gln";
+    table["CGU"] = "Arg"; table["CGC"] = "Arg"; table["CGA"] = "Arg"; table["CGG"] = "Arg";
+
+    table["AUU"] = "Ile"; table["AUC"] = "Ile"; table["AUA"] = "Ile"; table["AUG"] = "Met";
+    table["ACU"] = "Thr"; table["ACC"] = "Thr"; table["ACA"] = "Thr"; table["ACG"] = "Thr";
+    table["AAU"] = "Asn"; table["AAC"] = "Asn"; table["AAA"] = "Lys"; table["AAG"] = "Lys";
+    table["AGU"] = "Ser"; table["AGC"] = "Ser"; table["AGA"] = "Arg"; table["AGG"] = "Arg";
+
+    table["GUU"] = "Val"; table["GUC"] = "Val"; table["GUA"] = "Val"; table["GUG"] = "Val";
+    table["GCU"] = "Ala"; table["GCC"] = "Ala"; table["GCA"] = "Ala"; table["GCG"] = "Ala";
+    table["GAU"] = "Asp"; table["GAC"] = "Asp"; table["GAA"] = "Glu"; table["GAG"] = "Glu";
+    table["GGU"] = "Gly"; table["GGC"] = "Gly"; table["GGA"] = "Gly"; table["GGG"] = "Gly";
+
+    for (const std::string& sample : samples)
+    {
+        for (size_t i = 0; i + 2 < sample.length(); i += 3)
+        {
+            std::string pair;
+            pair += sample[i]   == 'T' ? 'U' : sample[i];
+            pair += sample[i+1] == 'T' ? 'U' : sample[i+1];
+            pair += sample[i+2] == 'T' ? 'U' : sample[i+2];
+
+            if (table.find(pair) != table.end())
+                freq[pair]++;
+        }
+    }
+
+    return freq;
+}
+
+int main()
+{
+    std::ifstream file("GCF_000591035.1_ASM59103v1_cds_from_genomic.fna");
+
+    if (!file.is_open())
+    {
+        std::cerr << "File failed to open!\n";
+        return 1;
+    }
+
+    std::string line, fullSequence = "";
+    while (std::getline(file, line))
+    {
+        if (!line.empty() && line[0] != '>')
+            fullSequence += line;
+    }
+    file.close();
+
+    std::vector<std::string> samples = sampleGenome(fullSequence, 20000);
+    std::cout << "Successfully loaded genome and sampled " << samples.size();
+
+    std::unordered_map<std::string, std::string> aaMap = {
+        {"UUU", "Phe"}, {"UUC", "Phe"}, {"UUA", "Leu"}, {"UUG", "Leu"},
+        {"UCU", "Ser"}, {"UCC", "Ser"}, {"UCA", "Ser"}, {"UCG", "Ser"},
+        {"UAU", "Tyr"}, {"UAC", "Tyr"}, {"UAA", "Stop"}, {"UAG", "Stop"},
+        {"UGU", "Cys"}, {"UGC", "Cys"}, {"UGA", "Stop"}, {"UGG", "Trp"},
+        {"CUU", "Leu"}, {"CUC", "Leu"}, {"CUA", "Leu"}, {"CUG", "Leu"},
+        {"CCU", "Pro"}, {"CCC", "Pro"}, {"CCA", "Pro"}, {"CCG", "Pro"},
+        {"CAU", "His"}, {"CAC", "His"}, {"CAA", "Gln"}, {"CAG", "Gln"},
+        {"CGU", "Arg"}, {"CGC", "Arg"}, {"CGA", "Arg"}, {"CGG", "Arg"},
+        {"AUU", "Ile"}, {"AUC", "Ile"}, {"AUA", "Ile"}, {"AUG", "Met"},
+        {"ACU", "Thr"}, {"ACC", "Thr"}, {"ACA", "Thr"}, {"ACG", "Thr"},
+        {"AAU", "Asn"}, {"AAC", "Asn"}, {"AAA", "Lys"}, {"AAG", "Lys"},
+        {"AGU", "Ser"}, {"AGC", "Ser"}, {"AGA", "Arg"}, {"AGG", "Arg"},
+        {"GUU", "Val"}, {"GUC", "Val"}, {"GUA", "Val"}, {"GUG", "Val"},
+        {"GCU", "Ala"}, {"GCC", "Ala"}, {"GCA", "Ala"}, {"GCG", "Ala"},
+        {"GAU", "Asp"}, {"GAC", "Asp"}, {"GAA", "Glu"}, {"GAG", "Glu"},
+        {"GGU", "Gly"}, {"GGC", "Gly"}, {"GGA", "Gly"}, {"GGG", "Gly"}
+    };
+
+    std::unordered_map<std::string, int> freq = toAminoFreq(samples);
+
+    std::vector<std::pair<std::string, int>> list(freq.begin(), freq.end());
+
+    std::cout << "Codon Counts from 20,000 Samples:\n";
+
+    for (size_t i = 0; i < list.size(); ++i)
+    {
+        std::string rnaCodon = list[i].first;
+        std::string dnaCodon = rnaCodon;
+
+        for (char &c : dnaCodon)
+            if (c == 'U')
+                c = 'T';
+
+        std::cout << i + 1 << ". DNA: " << dnaCodon << " | RNA: " << rnaCodon
+                  << " | Amino Acid: " << aaMap[rnaCodon] << " | Count: " << list[i].second << '\n';
+    }
+    return 0;
+}

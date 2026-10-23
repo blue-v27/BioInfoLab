@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1792764534 source:c:\users\blue\documents\bioinfolab\lab4\lab4\main.cpp
+	<iostream>
+	<fstream>
+	<unordered_map>
+	<vector>
+	<string>
+	<cstdlib>
+	<ctime>
+
