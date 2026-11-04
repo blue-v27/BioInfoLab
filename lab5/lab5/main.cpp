@@ -12,6 +12,7 @@ struct DnaFragment {
     std::string sequence;
     int length;
     double migrationDist;
+    int repeatCount;
 };
 
 int main()
@@ -46,14 +47,39 @@ int main()
         std::string sampleSeq = fullGenome.substr(startPos, fragLen);
         double dist = 1.0 + ((logMax - std::log10(fragLen)) / (logMax - logMin)) * 8.5;
 
-        gelSamples.push_back({i, sampleSeq, fragLen, dist});
+        int repeatMatches = 0;
+        for (size_t pos = 0; pos < sampleSeq.length(); pos++)
+        {
+            for (int unitLen = 3; unitLen <= 5; unitLen++)
+            {
+                if (pos + unitLen > sampleSeq.length()) continue;
+
+                std::string unit = sampleSeq.substr(pos, unitLen);
+                int count = 1;
+
+                while (pos + (count + 1) * unitLen <= sampleSeq.length() &&
+                       sampleSeq.substr(pos + count * unitLen, unitLen) == unit)
+                {
+                    count++;
+                }
+
+                int totalLen = count * unitLen;
+                if (totalLen >= 6 && totalLen <= 10)
+                {
+                    repeatMatches++;
+                }
+            }
+        }
+
+        gelSamples.push_back({i, sampleSeq, fragLen, dist, repeatMatches});
     }
 
-    std::cout << "ID\tLength (bp)\tMigration Distance (cm)\n";
-    std::cout << "-------------------------------------------\n";
+    std::cout << "ID\tLength (bp)\tMigration Dist\t6-10bp Repeats Found\n";
+    std::cout << "------------------------------------------------------------\n";
     for (const auto& sample : gelSamples)
     {
-        std::cout << sample.id << "\t" << sample.length << "\t\t" << sample.migrationDist << " cm\n";
+        std::cout << sample.id << "\t" << sample.length << "\t\t"
+                  << sample.migrationDist << " cm\t\t" << sample.repeatCount << "\n";
     }
 
     return 0;
