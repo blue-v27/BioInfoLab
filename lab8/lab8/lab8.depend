@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1795187934 source:c:\users\blue\documents\bioinfolab\lab8\lab8\main.cpp
+	<iostream>
+	<vector>
+	<string>
+	<algorithm>
+	<iomanip>
+
